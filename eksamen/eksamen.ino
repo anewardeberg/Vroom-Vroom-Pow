@@ -6,6 +6,8 @@ bool userInGame = false;
 int obstacleX = 80;
 int obstacleY = 30;
 int carX = 115;
+int carMaxX = 169;
+int carMinX = 61;
 int speed = 3;
 int score = 0;
 int lazersAvailable = 5;
@@ -151,6 +153,10 @@ void startGame(int buttonPin) {
 }
 
 void moveCarRight(int x) {
+  if(x >= carMaxX) {
+    x = carMaxX;
+    carX = carMaxX;
+  }
   tft.fillRect(x, 95, 10, 15, carColor);
   tft.fillRect(x + 1, 98, 8, 4, GRAY);
   tft.fillRect(x + 1, 95, 2, 1, YELLOW);
@@ -160,6 +166,10 @@ void moveCarRight(int x) {
 }
 
 void moveCarLeft(int x) {
+  if(x <= carMinX) {
+    x = carMinX;
+    carX = carMinX;
+  }
   tft.fillRect(x, 95, 10, 15, carColor);
   tft.fillRect(x + 1, 98, 8, 4, GRAY);
   tft.fillRect(x + 1, 95, 2, 1, YELLOW);
