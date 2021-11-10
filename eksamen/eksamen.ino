@@ -3,6 +3,7 @@
 // MISC. VARIABLES
 bool userInGame = false;
 
+
 // TFT VARIABLES / SETUP
 #include <Adafruit_ST7789.h> // Hardware-specific library for ST7789
 #include <SPI.h>
@@ -12,6 +13,8 @@ bool userInGame = false;
 #define GREEN 0x07E0
 #define GRAY 0x9492
 #define BLUE 0x063F
+#define ASPHALT_GRAY 0x5289
+#define YELLOW 0xFE47
 
 #if defined(ARDUINO_FEATHER_ESP32)
 #define TFT_CS         14
@@ -82,7 +85,6 @@ void loop() {
 //  tft.fillScreen(GREEN);
 //  tft.setCursor(25, 50);
 //  tft.println("Game started");
-  drawPillars(100, 40);
   delay(2000);
   }
     
@@ -110,11 +112,24 @@ void startGame(int buttonPin) {
   while (1) {
     buttonState = digitalRead(buttonPin);
     if (buttonState == HIGH) {
-      tft.fillScreen(BLACK);
+      setGameBackground();
       userInGame = true;
       return;
     }
   }
+}
+
+void moveCar(int x) {
+  
+}
+
+void setGameBackground() {
+  tft.fillScreen(ASPHALT_GRAY);
+  tft.fillRect(0, 0, 60, 135, GREEN);
+  tft.fillRect(180, 0, 60, 135, GREEN);
+  tft.fillRect(118, 5, 4, 30, YELLOW);
+  tft.fillRect(118, 50, 4, 30, YELLOW);
+  tft.fillRect(118, 95, 4, 30, YELLOW);
 }
 
 void drawPillars(int x, int y) {
@@ -128,7 +143,6 @@ void drawPillars(int x, int y) {
       // Draws blue rectangle right of the pillar
       tft.fillRect(x+51, 0, x+60, y, BLUE);
       // Draws the pillar
-
       tft.fillRect(x+49, 1, x+1, y-1, GRAY);
   
       tft.drawRect(x+50, 0, x, y, BLACK);
