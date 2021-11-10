@@ -69,6 +69,14 @@ int buttonState3 = 0;
 int buttonState4 = 0;
 
 // JOYSTICK VARIABLES
+const int analogInPinX = A0;
+const int analogInPinY = A1;
+
+
+int sensorValueX = 0;
+//int sensorValueY = 0;
+int outputValueX = 0;
+//int outputValueY = 0;
 
 void setup() {
   Serial.begin(57600);
@@ -99,25 +107,30 @@ void loop() {
     buttonState3 = digitalRead(buttonPin3);
     buttonState2 = digitalRead(buttonPin2);
     buttonState4 = digitalRead(buttonPin4);
+    
+    sensorValueX = analogRead(analogInPinX);
+//    sensorValueY = analogRead(analogInPinY);
+    // map it to the range of the analog out:
+    outputValueX = map(sensorValueX, 0, 1023, 0, 255);
+//    outputValueY = map(sensorValueY, 0, 1023, 0, 255);
     if (buttonState3 == HIGH && lazersAvailable > 0) {
       activateLazer(carX);
       updateGameStats();
       buttonState3 == LOW;
     }
 
-    if (buttonState2 == HIGH) {
+    if (outputValueX > 150) {
       carX++;
       moveCarRight(carX);
     }
 
-    if (buttonState4 == HIGH) {
+    if (outputValueX < 100) {
       carX--;
       moveCarLeft(carX);
     }
     //  tft.fillScreen(GREEN);
     //  tft.setCursor(25, 50);
     //  tft.println("Game started");
-    drawCar(carX, carColor);
   }
 
 
@@ -145,6 +158,7 @@ void startGame(int buttonPin) {
     buttonState = digitalRead(buttonPin);
     if (buttonState == HIGH) {
       setGameBackground();
+      drawCar(carX, carColor);
       showGameStats();
       userInGame = true;
       return;
@@ -153,7 +167,7 @@ void startGame(int buttonPin) {
 }
 
 void moveCarRight(int x) {
-  if(x >= carMaxX) {
+  if (x >= carMaxX) {
     x = carMaxX;
     carX = carMaxX;
   }
@@ -166,7 +180,7 @@ void moveCarRight(int x) {
 }
 
 void moveCarLeft(int x) {
-  if(x <= carMinX) {
+  if (x <= carMinX) {
     x = carMinX;
     carX = carMinX;
   }
