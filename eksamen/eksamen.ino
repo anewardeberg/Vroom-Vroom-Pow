@@ -14,6 +14,8 @@ int lazersAvailable = 5;
 int speedUpScore = 0;
 int highScore = 0;
 
+
+
 // TFT VARIABLES / SETUP
 #include <Adafruit_ST7789.h> // Hardware-specific library for ST7789
 #include <SPI.h>
@@ -27,6 +29,7 @@ int highScore = 0;
 #define PINK 0xEB93
 #define WHITE 0xFFFF
 
+uint16_t carColorArray[] = {PINK, BLUE, GREEN, YELLOW};
 uint16_t carColor = PINK;
 uint16_t lazerColor = BLUE;
 
@@ -79,7 +82,7 @@ int outputValueX = 0;
 //int outputValueY = 0;
 
 void setup() {
-  Serial.begin(57600);
+  Serial.begin(9600);
   tft.init(135, 240);
   tft.fillScreen(BLACK);
   tft.setRotation(1);
@@ -93,26 +96,23 @@ void setup() {
 }
 
 void loop() {
-  tft.setTextSize(2);
-  tft.setCursor(0, 0);
-  tft.println("Press button");
-  tft.print("to start game");
-  tft.fillCircle(20, 70, 10, GRAY);
-  tft.fillCircle(40, 50, 10, GRAY);
-  tft.fillCircle(60, 70, 10, GREEN);
-  tft.fillCircle(40, 90, 10, GRAY);
+  //  tft.setTextSize(2);
+  //  tft.setCursor(0, 0);
+  //  tft.println("Press button");
+  //  tft.print("to start game");
+  showHomeScreen();
   startGame(2);
   delay(200);
   while (userInGame) {
     buttonState3 = digitalRead(buttonPin3);
     buttonState2 = digitalRead(buttonPin2);
     buttonState4 = digitalRead(buttonPin4);
-    
+
     sensorValueX = analogRead(analogInPinX);
-//    sensorValueY = analogRead(analogInPinY);
+    //    sensorValueY = analogRead(analogInPinY);
     // map it to the range of the analog out:
     outputValueX = map(sensorValueX, 0, 1023, 0, 255);
-//    outputValueY = map(sensorValueY, 0, 1023, 0, 255);
+    //    outputValueY = map(sensorValueY, 0, 1023, 0, 255);
     if (buttonState3 == HIGH && lazersAvailable > 0) {
       activateLazer(carX);
       updateGameStats();
@@ -151,12 +151,29 @@ void loop() {
   //  }
 }
 
+void showHomeScreen() {
+  tft.fillCircle(20, 70, 10, GRAY);
+  tft.fillCircle(40, 50, 10, PINK);
+  tft.fillCircle(60, 70, 10, GREEN);
+  tft.fillCircle(40, 90, 10, GRAY);
+
+  tft.setTextSize(1.5);
+  tft.fillCircle(90, 50, 8, GREEN);
+  tft.setCursor(105, 47);
+  tft.print("Start game");
+  tft.fillCircle(90, 70, 8, PINK);
+  tft.setCursor(105, 67);
+  tft.print("Car color");
+}
+
 void startGame(int buttonPin) {
   int buttonState = 0;
 
   while (1) {
     buttonState = digitalRead(buttonPin);
     if (buttonState == HIGH) {
+      buttonState = 0;
+      chooseCarColor();
       setGameBackground();
       drawCar(carX, carColor);
       showGameStats();
@@ -164,6 +181,71 @@ void startGame(int buttonPin) {
       return;
     }
   }
+}
+
+void chooseCarColor() {
+  bool userHasChosenColor = false;
+  int i = 0;
+  tft.fillScreen(BLACK);
+  tft.print("CHOOSE CAR COLOR");
+  while (!userHasChosenColor) {
+    buttonState1 = digitalRead(buttonPin1);
+    tft.fillRect(17, 80, 34, 34, carColorArray[0]);
+    tft.fillRect(73, 80, 34, 34, carColorArray[1]);
+    tft.fillRect(129, 80, 34, 34, carColorArray[2]);
+    tft.fillRect(185, 80, 34, 34, carColorArray[3]);
+    Serial.println(outputValueX);
+    
+    sensorValueX = analogRead(analogInPinX);
+    outputValueX = map(sensorValueX, 0, 1023, 0, 255);
+    tft.drawRect(14, 77, 40, 40, GREEN);
+    switch (outputValueX) {
+      case 160 ... 255:
+        i++;
+        if (i > 3) {
+          i = 3;
+        }
+      case 0 ... 80:
+        i--;
+        if (i < 0) {
+          i = 0;
+        }
+      default:
+        i = 0;
+    }
+
+    while (i = 0) {
+      tft.drawRect(14, 77, 40, 40, GREEN);
+      tft.drawRect(70, 77, 40, 40, BLACK);
+      tft.drawRect(126, 77, 40, 40, BLACK);
+      tft.drawRect(182, 77, 40, 40, BLACK);
+    }
+
+    while (i = 1) {
+      tft.drawRect(14, 77, 40, 40, BLACK);
+      tft.drawRect(70, 77, 40, 40, GREEN);
+      tft.drawRect(126, 77, 40, 40, BLACK);
+      tft.drawRect(182, 77, 40, 40, BLACK);
+    }
+    while (i = 2) {
+      tft.drawRect(14, 77, 40, 40, BLACK);
+      tft.drawRect(70, 77, 40, 40, BLACK);
+      tft.drawRect(126, 77, 40, 40, GREEN);
+      tft.drawRect(182, 77, 40, 40, BLACK);
+    }
+    while (i = 3) {
+      tft.drawRect(14, 77, 40, 40, BLACK);
+      tft.drawRect(70, 77, 40, 40, BLACK);
+      tft.drawRect(126, 77, 40, 40, BLACK);
+      tft.drawRect(182, 77, 40, 40, GREEN);
+    }
+
+    if (buttonState1 == HIGH) {
+      userHasChosenColor = true;
+    }
+
+  }
+  tft.fillScreen(BLACK);
 }
 
 void moveCarRight(int x) {
