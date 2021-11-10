@@ -1,20 +1,30 @@
 // EKSAMENSDOKUMENT HELT PÅ EKTE
+#include <EEPROM.h>
 
 // MISC. VARIABLES
 bool userInGame = false;
-
+int obstacleX = 80;
+int obstacleY = 30;
+int carX = 120;
+int speed = 3;
+int score = 0;
+int speedUpScore = 0;
+int highScore = 0;
 
 // TFT VARIABLES / SETUP
 #include <Adafruit_ST7789.h> // Hardware-specific library for ST7789
 #include <SPI.h>
 
-#define PINK 0xF81F
 #define BLACK 0x0000
 #define GREEN 0x07E0
 #define GRAY 0x9492
 #define BLUE 0x063F
 #define ASPHALT_GRAY 0x5289
 #define YELLOW 0xFE47
+#define PINK 0xEB93
+#define WHITE 0xFFFF
+
+uint16_t lazerColor = BLUE;
 
 #if defined(ARDUINO_FEATHER_ESP32)
 #define TFT_CS         14
@@ -66,7 +76,7 @@ void setup() {
   tft.println("fakk alt corp. 2021");
   //  delay(3000);
   tft.fillScreen(BLACK);
-
+  highScore = EEPROM.read(0);
 
 }
 
@@ -79,36 +89,38 @@ void loop() {
   tft.fillCircle(40, 50, 10, GRAY);
   tft.fillCircle(60, 70, 10, GREEN);
   tft.fillCircle(40, 90, 10, GRAY);
-  startGame(2); 
+  startGame(2);
   delay(200);
-  while(userInGame) {
-//  tft.fillScreen(GREEN);
-//  tft.setCursor(25, 50);
-//  tft.println("Game started");
-  delay(2000);
+  while (userInGame) {
+    //  tft.fillScreen(GREEN);
+    //  tft.setCursor(25, 50);
+    //  tft.println("Game started");
+    drawCar(115, PINK);
+    activateLazer(115);
+    delay(2000);
   }
-    
-  
 
-//  buttonState1 = digitalRead(buttonPin1);
-//  buttonState2 = digitalRead(buttonPin2);
-//  buttonState3 = digitalRead(buttonPin3);
-//  buttonState4 = digitalRead(buttonPin4);
-//
-//  if (buttonState1 == HIGH) {
-//    showMenuScreen();
-//  } else if (buttonState2 == HIGH) {
-//    showMenuScreen();
-//  } else if (buttonState3 == HIGH) {
-//    showMenuScreen();
-//  } else if (buttonState4 == HIGH) {
-//    showMenuScreen();
-//  }
+
+
+  //  buttonState1 = digitalRead(buttonPin1);
+  //  buttonState2 = digitalRead(buttonPin2);
+  //  buttonState3 = digitalRead(buttonPin3);
+  //  buttonState4 = digitalRead(buttonPin4);
+  //
+  //  if (buttonState1 == HIGH) {
+  //    showMenuScreen();
+  //  } else if (buttonState2 == HIGH) {
+  //    showMenuScreen();
+  //  } else if (buttonState3 == HIGH) {
+  //    showMenuScreen();
+  //  } else if (buttonState4 == HIGH) {
+  //    showMenuScreen();
+  //  }
 }
 
 void startGame(int buttonPin) {
   int buttonState = 0;
-  
+
   while (1) {
     buttonState = digitalRead(buttonPin);
     if (buttonState == HIGH) {
@@ -119,39 +131,55 @@ void startGame(int buttonPin) {
   }
 }
 
-void moveCar(int x) {
-  
+void moveCar(int x, uint16_t carColor) {
+
+}
+
+void activateLazer(int x) {
+  tft.fillRect(x + 1, 0, 3, 95, lazerColor);
+  tft.fillRect(x + 7, 0, 3, 95, lazerColor);
+  tft.fillRect(x + 2, 0, 1, 95, WHITE);
+  tft.fillRect(x + 8, 0, 1, 95, WHITE);
+}
+
+void drawCar(int x, uint16_t carColor) {
+  tft.fillRect(x, 95, 10, 15, carColor);
+  tft.fillRect(x + 1, 98, 8, 4, GRAY);
+  tft.fillRect(x + 1, 95, 2, 1, YELLOW);
+  tft.fillRect(x + 7, 95, 2, 1, YELLOW);
 }
 
 void setGameBackground() {
   tft.fillScreen(ASPHALT_GRAY);
   tft.fillRect(0, 0, 60, 135, GREEN);
   tft.fillRect(180, 0, 60, 135, GREEN);
-  tft.fillRect(118, 5, 4, 30, YELLOW);
-  tft.fillRect(118, 50, 4, 30, YELLOW);
-  tft.fillRect(118, 95, 4, 30, YELLOW);
+
+  // fartsstriper 8D
+  //  tft.fillRect(118, 5, 4, 30, YELLOW);
+  //  tft.fillRect(118, 50, 4, 30, YELLOW);
+  //  tft.fillRect(118, 95, 4, 30, YELLOW);
 }
 
 void drawPillars(int x, int y) {
-    if (x>=270){
-      tft.fillRect(318, 0, x, y-1, PINK);
-      tft.drawRect(319, 0, x-1, y, BLACK);
-      tft.fillRect(318, y+81, x, 203, GRAY);
-      tft.drawRect(319, y+80, x-1, 204, BLACK); 
-    }
-    else if( x<=268) {
-      // Draws blue rectangle right of the pillar
-      tft.fillRect(x+51, 0, x+60, y, BLUE);
-      // Draws the pillar
-      tft.fillRect(x+49, 1, x+1, y-1, GRAY);
-  
-      tft.drawRect(x+50, 0, x, y, BLACK);
-      // Draws the blue rectangle left of the pillar
-      tft.fillRect(x-1, 0, x-3, y, BLUE);
-      // The bottom pillar
-      tft.fillRect(x+51, y+80, x+60, 204, PINK);
-      tft.fillRect(x+49, y+81, x+1, 203, GRAY);
-      tft.drawRect(x+50, y+80, x, 204, BLACK);
-      tft.fillRect(x-1, y+80, x-3, 204, BLUE);
+  if (x >= 270) {
+    tft.fillRect(318, 0, x, y - 1, PINK);
+    tft.drawRect(319, 0, x - 1, y, BLACK);
+    tft.fillRect(318, y + 81, x, 203, GRAY);
+    tft.drawRect(319, y + 80, x - 1, 204, BLACK);
+  }
+  else if ( x <= 268) {
+    // Draws blue rectangle right of the pillar
+    tft.fillRect(x + 51, 0, x + 60, y, BLUE);
+    // Draws the pillar
+    tft.fillRect(x + 49, 1, x + 1, y - 1, GRAY);
+
+    tft.drawRect(x + 50, 0, x, y, BLACK);
+    // Draws the blue rectangle left of the pillar
+    tft.fillRect(x - 1, 0, x - 3, y, BLUE);
+    // The bottom pillar
+    tft.fillRect(x + 51, y + 80, x + 60, 204, PINK);
+    tft.fillRect(x + 49, y + 81, x + 1, 203, GRAY);
+    tft.drawRect(x + 50, y + 80, x, 204, BLACK);
+    tft.fillRect(x - 1, y + 80, x - 3, 204, BLUE);
   }
 }
