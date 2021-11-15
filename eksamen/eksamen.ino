@@ -1,5 +1,6 @@
 // EKSAMENSDOKUMENT HELT PÅ EKTE
 #include <EEPROM.h>
+#include "pitches.h"
 
 // MISC. VARIABLES
 bool userInGame = false;
@@ -13,6 +14,16 @@ int score = 0;
 int lazersAvailable = 5;
 int speedUpScore = 0;
 int highScore = 0;
+const int speakerPin = 7;
+
+int melody[] = {
+  NOTE_C4, NOTE_C4, NOTE_C4, NOTE_A3
+};
+
+int noteDurations[] = {
+  8, 8, 8, 8
+};
+
 
 //int deltatime SPØR MATS OM DETTE NÅR DEN TID KOMMER <3
 
@@ -86,6 +97,8 @@ int outputValueX = 0;
 
 void setup() {
   Serial.begin(9600);
+  pinMode(speakerPin, OUTPUT);
+  pinMode(buttonPin4, INPUT);
   tft.init(135, 240);
   tft.fillScreen(BLACK);
   tft.setRotation(1);
@@ -104,6 +117,14 @@ void loop() {
   //  tft.println("Press button");
   //  tft.print("to start game");
   showHomeScreen();
+//  for (int thisNote = 0; thisNote < 8; thisNote++) {
+//    int noteDuration = 1000 / noteDurations[thisNote];
+//    tone(speakerPin, melody[thisNote], noteDuration);
+//    int pauseBetweenNotes = noteDuration * 1.30;
+//    delay(pauseBetweenNotes);
+//    // stop the tone playing:
+//    noTone(speakerPin);
+//  }
   startGame(2);
 
   delay(200);
@@ -205,27 +226,39 @@ void startGame(int buttonPin) {
     if (buttonState == HIGH) {
       buttonState = 0;
       carColor = carColorArray[random(4)];
-//      chooseCarColor();
+      //      chooseCarColor();
       setGameBackground();
       drawCar(carX, carColor);
       showGameStats();
       tft.setTextColor(WHITE);
       delay(1000);
       tft.setCursor(115, 50);
+      tone(speakerPin, NOTE_C4);
       tft.print("3");
-      delay(1000);
+      delay(800);
+      noTone(speakerPin);
+      delay(200);
       tft.fillRect(110, 45, 20, 20, ASPHALT_GRAY);
       tft.setCursor(115, 50);
+      tone(speakerPin, NOTE_C4);
       tft.print("2");
-      delay(1000);
+      delay(800);
+      noTone(speakerPin);
+      delay(200);
       tft.fillRect(110, 45, 20, 20, ASPHALT_GRAY);
       tft.setCursor(115, 50);
+      tone(speakerPin, NOTE_C4);
       tft.print("1");
-      delay(1000);
+      delay(800);
+      noTone(speakerPin);
+      delay(200);
       tft.fillRect(110, 45, 20, 20, ASPHALT_GRAY);
       tft.setCursor(85, 50);
+      tone(speakerPin, NOTE_C5);
       tft.print("START!");
-      delay(1000);
+      delay(800);
+      noTone(speakerPin);
+      delay(200);
       tft.fillRect(75, 45, 80, 20, ASPHALT_GRAY);
       userInGame = true;
       return;
