@@ -32,7 +32,7 @@ int highScore = 0;
 #define PINK 0xEB93
 #define WHITE 0xFFFF
 
-uint16_t carColorArray[] = {PINK, BLUE, GREEN, YELLOW};
+uint16_t carColorArray[4] = {PINK, BLUE, GREEN, YELLOW};
 uint16_t carColor = BLUE;
 uint16_t lazerColor = PINK;
 
@@ -122,7 +122,7 @@ void loop() {
       obstacleY = -30;
       obstacleX = rand() % 80 + 60;
       score++;
-      if(score%10 == 0) {
+      if (score % 10 == 0) {
         lazersAvailable++;
       }
       updateGameStats();
@@ -143,9 +143,22 @@ void loop() {
       carX--;
       moveCarLeft(carX);
     }
-    if ((obstacleY + 15 >= 95) && (obstacleY + 15 <= 110) && (carX >= obstacleX) && (carX <= obstacleX + 40)) {
+
+    if ((obstacleY + 15 >= 95) &&
+        (obstacleY + 15 <= 110) &&
+        (carX >= obstacleX) &&
+        (carX <= obstacleX + 40)) {
+      gameOver();
+    } else if ((obstacleY + 15 >= 95) &&
+               (obstacleY + 15 <= 110) &&
+               (carX + 10 >= obstacleX) &&
+               (carX + 10 <= obstacleX + 40)) {
       gameOver();
     }
+
+
+
+
     //  tft.fillScreen(GREEN);
     //  tft.setCursor(25, 50);
     //  tft.println("Game started");
@@ -191,7 +204,8 @@ void startGame(int buttonPin) {
     buttonState = digitalRead(buttonPin);
     if (buttonState == HIGH) {
       buttonState = 0;
-      chooseCarColor();
+      carColor = carColorArray[random(4)];
+//      chooseCarColor();
       setGameBackground();
       drawCar(carX, carColor);
       showGameStats();
@@ -385,14 +399,20 @@ void drawPillars(int x, int y) {
 }
 
 void gameOver() {
-  delay(2000);
+  delay(1500);
   tft.setTextColor(WHITE);
   tft.fillScreen(BLACK);
-  obstacleY = -60;
-  tft.setCursor(65, 63);
-  tft.print("GAME OVER");
+  tft.setCursor(65, 53);
+  tft.println("GAME OVER");
+  tft.setCursor(65, 73);
+  tft.print("Score: ");
+  tft.print(score);
+
   delay(2000);
+
+  obstacleY = -60;
   score = 0;
+  carX = 115;
   userInGame = false;
   lazersAvailable = 5;
   tft.fillScreen(BLACK);
