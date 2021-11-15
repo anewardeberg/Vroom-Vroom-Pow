@@ -118,17 +118,10 @@ void loop() {
     //    sensorValueY = analogRead(analogInPinY);
     // map it to the range of the analog out:
     outputValueX = map(sensorValueX, 0, 1023, 0, 255);
-    //    outputValueY = map(sensorValueY, 0, 1023, 0, 255);
-    //     if((xP<=85) && (xP>=5) && (yB<=yP-2)){ // upper pillar
-    //      gameOver();
-    //    }
-    //    if((xP<=85) && (xP>=5) && (yB>=yP+60)){ // lower pillar
-    //      gameOver();
-    //    }
     if (obstacleY >= 150) {
-      obstacleY = -30; // Resets xP to 319
-      obstacleX = rand() % 80 + 60; // Random number for the pillars height
-      score++; // Increase score by one
+      obstacleY = -30;
+      obstacleX = rand() % 80 + 60;
+      score++;
       updateGameStats();
     }
 
@@ -146,6 +139,9 @@ void loop() {
     if (outputValueX < 100) {
       carX--;
       moveCarLeft(carX);
+    }
+       if ((obstacleY+15 >= 95) && (obstacleY+15 <= 110) && (carX >= obstacleX) && (carX <= obstacleX+40)) { 
+      gameOver();
     }
     //  tft.fillScreen(GREEN);
     //  tft.setCursor(25, 50);
@@ -352,15 +348,18 @@ void beep() {
 void drawPillars(int x, int y) {
   //  if (x >= 270) {
   tft.fillRect(x, y, 40, 15, BROWN);
-//  tft.fillRect(x + 90, y, 40, 15, BROWN);
+  //  tft.fillRect(x + 90, y, 40, 15, BROWN);
   tft.fillRect(x, y - 15, 40, 15, ASPHALT_GRAY);
-//  tft.fillRect(x + 90, y - 15, 40, 15, ASPHALT_GRAY);
-  if(x <= 60) {
-    
+  //  tft.fillRect(x + 90, y - 15, 40, 15, ASPHALT_GRAY);
+  if (x <= 60) {
+
   }
 }
 
 void gameOver() {
+  delay(2000);
   tft.fillScreen(BLACK);
   tft.print("GAME OVER");
+  delay(2000);
+  userInGame = false;
 }
