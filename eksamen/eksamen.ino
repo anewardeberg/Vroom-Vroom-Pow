@@ -33,8 +33,8 @@ int highScore = 0;
 #define WHITE 0xFFFF
 
 uint16_t carColorArray[] = {PINK, BLUE, GREEN, YELLOW};
-uint16_t carColor = PINK;
-uint16_t lazerColor = BLUE;
+uint16_t carColor = BLUE;
+uint16_t lazerColor = PINK;
 
 #if defined(ARDUINO_FEATHER_ESP32)
 #define TFT_CS         14
@@ -140,7 +140,7 @@ void loop() {
       carX--;
       moveCarLeft(carX);
     }
-       if ((obstacleY+15 >= 95) && (obstacleY+15 <= 110) && (carX >= obstacleX) && (carX <= obstacleX+40)) { 
+    if ((obstacleY + 15 >= 95) && (obstacleY + 15 <= 110) && (carX >= obstacleX) && (carX <= obstacleX + 40)) {
       gameOver();
     }
     //  tft.fillScreen(GREEN);
@@ -192,6 +192,24 @@ void startGame(int buttonPin) {
       setGameBackground();
       drawCar(carX, carColor);
       showGameStats();
+      tft.setTextColor(WHITE);
+      delay(1000);
+      tft.setCursor(115, 50);
+      tft.print("3");
+      delay(1000);
+      tft.fillRect(110, 45, 20, 20, ASPHALT_GRAY);
+      tft.setCursor(115, 50);
+      tft.print("2");
+      delay(1000);
+      tft.fillRect(110, 45, 20, 20, ASPHALT_GRAY);
+      tft.setCursor(115, 50);
+      tft.print("1");
+      delay(1000);
+      tft.fillRect(110, 45, 20, 20, ASPHALT_GRAY);
+      tft.setCursor(85, 50);
+      tft.print("START!");
+      delay(1000);
+      tft.fillRect(75, 45, 80, 20, ASPHALT_GRAY);
       userInGame = true;
       return;
     }
@@ -296,8 +314,15 @@ void activateLazer(int x) {
   tft.fillRect(x + 2, 0, 1, 95, WHITE);
   tft.fillRect(x + 8, 0, 1, 95, WHITE);
   delay(1000);
+  if ((x >= obstacleX) && (x <= obstacleX + 40)) {
+    obstacleY = -100;
+    obstacleX = rand() % 80 + 60;
+    tft.fillRect(60, 0, 120, 95, ASPHALT_GRAY);
+  }
   tft.fillRect(x + 1, 0, 3, 95, ASPHALT_GRAY);
   tft.fillRect(x + 7, 0, 3, 95, ASPHALT_GRAY);
+  delay(500);
+
 }
 
 void drawCar(int x, uint16_t carColor) {
@@ -358,8 +383,16 @@ void drawPillars(int x, int y) {
 
 void gameOver() {
   delay(2000);
+  tft.setTextColor(WHITE);
   tft.fillScreen(BLACK);
+  obstacleY = -60;
+  tft.setCursor(65, 63);
   tft.print("GAME OVER");
   delay(2000);
+  score = 0;
   userInGame = false;
+  lazersAvailable = 5;
+  tft.fillScreen(BLACK);
+  showHomeScreen();
+  startGame(2);
 }
