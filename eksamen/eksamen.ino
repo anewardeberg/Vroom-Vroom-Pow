@@ -122,6 +122,9 @@ void loop() {
       obstacleY = -30;
       obstacleX = rand() % 80 + 60;
       score++;
+      if(score%10 == 0) {
+        lazersAvailable++;
+      }
       updateGameStats();
     }
 
