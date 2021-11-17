@@ -16,14 +16,6 @@ int speedUpScore = 0;
 int highScore = 0;
 const int speakerPin = 7;
 
-int melody[] = {
-  NOTE_C4, NOTE_C4, NOTE_C4, NOTE_A3
-};
-
-int noteDurations[] = {
-  8, 8, 8, 8
-};
-
 
 //int deltatime SPØR MATS OM DETTE NÅR DEN TID KOMMER <3
 
@@ -112,19 +104,7 @@ void setup() {
 }
 
 void loop() {
-  //  tft.setTextSize(2);
-  //  tft.setCursor(0, 0);
-  //  tft.println("Press button");
-  //  tft.print("to start game");
   showHomeScreen();
-//  for (int thisNote = 0; thisNote < 8; thisNote++) {
-//    int noteDuration = 1000 / noteDurations[thisNote];
-//    tone(speakerPin, melody[thisNote], noteDuration);
-//    int pauseBetweenNotes = noteDuration * 1.30;
-//    delay(pauseBetweenNotes);
-//    // stop the tone playing:
-//    noTone(speakerPin);
-//  }
   startGame(2);
 
   delay(200);
@@ -176,31 +156,7 @@ void loop() {
                (carX + 10 <= obstacleX + 40)) {
       gameOver();
     }
-
-
-
-
-    //  tft.fillScreen(GREEN);
-    //  tft.setCursor(25, 50);
-    //  tft.println("Game started");
   }
-
-
-
-  //  buttonState1 = digitalRead(buttonPin1);
-  //  buttonState2 = digitalRead(buttonPin2);
-  //  buttonState3 = digitalRead(buttonPin3);
-  //  buttonState4 = digitalRead(buttonPin4);
-  //
-  //  if (buttonState1 == HIGH) {
-  //    showMenuScreen();
-  //  } else if (buttonState2 == HIGH) {
-  //    showMenuScreen();
-  //  } else if (buttonState3 == HIGH) {
-  //    showMenuScreen();
-  //  } else if (buttonState4 == HIGH) {
-  //    showMenuScreen();
-  //  }
 }
 
 void showHomeScreen() {
@@ -226,7 +182,7 @@ void startGame(int buttonPin) {
     if (buttonState == HIGH) {
       buttonState = 0;
       carColor = carColorArray[random(4)];
-      //      chooseCarColor();
+      chooseCarColor();
       setGameBackground();
       drawCar(carX, carColor);
       showGameStats();
@@ -260,6 +216,7 @@ void startGame(int buttonPin) {
       noTone(speakerPin);
       delay(200);
       tft.fillRect(75, 45, 80, 20, ASPHALT_GRAY);
+      delay(1000);
       userInGame = true;
       return;
     }
@@ -283,44 +240,45 @@ void chooseCarColor() {
     sensorValueX = analogRead(analogInPinX);
     outputValueX = map(sensorValueX, 0, 1023, 0, 255);
     Serial.print(outputValueX);
-    if (outputValueX >= 160) {
+    if (outputValueX >= 180) {
       i++;
       if (i > 3) {
         i = 3;
       }
-      delay(200);
-    } else if (outputValueX <= 80) {
+    } else if (outputValueX <= 60) {
       i--;
       if (i < 0) {
         i = 0;
       }
-      delay(200);
     }
 
     Serial.print("i: ");
     Serial.println(i);
 
-    if (i = 0) {
+
+    if (i == 0) {
       tft.drawRect(14, 77, 40, 40, GREEN);
       tft.drawRect(70, 77, 40, 40, BLACK);
       tft.drawRect(126, 77, 40, 40, BLACK);
       tft.drawRect(182, 77, 40, 40, BLACK);
-    } else if (i = 1) {
+    } else if (i == 1) {
       tft.drawRect(14, 77, 40, 40, BLACK);
       tft.drawRect(70, 77, 40, 40, GREEN);
       tft.drawRect(126, 77, 40, 40, BLACK);
       tft.drawRect(182, 77, 40, 40, BLACK);
-    } else if (i = 2) {
+    } else if (i == 2) {
       tft.drawRect(14, 77, 40, 40, BLACK);
       tft.drawRect(70, 77, 40, 40, BLACK);
       tft.drawRect(126, 77, 40, 40, GREEN);
       tft.drawRect(182, 77, 40, 40, BLACK);
-    } else if (i = 3) {
+    } else if (i == 3) {
       tft.drawRect(14, 77, 40, 40, BLACK);
       tft.drawRect(70, 77, 40, 40, BLACK);
       tft.drawRect(126, 77, 40, 40, BLACK);
       tft.drawRect(182, 77, 40, 40, GREEN);
     }
+    carColor = carColorArray[i];
+     delay(200);
 
     if (buttonState1 == HIGH) {
       userHasChosenColor = true;
