@@ -29,6 +29,7 @@ const int speakerPin = 7;
 #define BROWN 0x7A40
 #define GREEN 0x07E0
 #define GRAY 0x9492
+#define SKY_BLUE 0x971F
 #define BLUE 0x063F
 #define ASPHALT_GRAY 0x5289
 #define YELLOW 0xFE47
@@ -98,11 +99,12 @@ void setup() {
   tft.init(135, 240);
   tft.fillScreen(BLACK);
   tft.setRotation(1);
-  tft.setTextSize(2);
-  tft.setCursor(8, 50);
-  tft.println("fakk alt corp. 2021");
-  //  delay(3000);
-  tft.fillScreen(BLACK);
+  splashScreen();
+  //  tft.setTextSize(2);
+  //  tft.setCursor(8, 50);
+  //  tft.println("fakk alt corp. 2021");
+  //  //  delay(3000);
+  //  tft.fillScreen(BLACK);
   //  highScore = EEPROM.read(0);
 
 }
@@ -164,21 +166,27 @@ void loop() {
 }
 
 void showHomeScreen() {
-  tft.fillCircle(20, 66, 10, GRAY);
-  tft.fillCircle(40, 45, 10, GRAY);
-  tft.fillCircle(60, 65, 10, GREEN);
-  tft.fillCircle(40, 85, 10, GRAY);
+  tft.fillRect(0, 0, 240, 100, SKY_BLUE);
+  tft.fillRect(0, 100, 240, 35, GREEN);
+  tft.fillRect(0, 100, 240, 8, ASPHALT_GRAY);
+
+  tft.fillCircle(20, 46, 10, GRAY);
+  tft.fillCircle(40, 25, 10, GRAY);
+  tft.fillCircle(60, 45, 10, GREEN);
+  tft.fillCircle(40, 65, 10, GRAY);
+  drawHomeScreenCars();
 
   tft.setTextSize(2);
   //  tft.fillCircle(90, 50, 8, GREEN);
   //  tft.setCursor(105, 47);
   //  tft.print("Start game");
   //  tft.fillCircle(90, 70, 8, PINK);
-  tft.setCursor(90, 63);
+  tft.setCursor(90, 43);
   tft.print("Start game");
 }
 
 void startGame(int buttonPin) {
+  delay(200);
   int buttonState = 0;
 
   while (1) {
@@ -359,11 +367,6 @@ void setGameBackground() {
   tft.fillScreen(ASPHALT_GRAY);
   tft.fillRect(0, 0, 60, 135, GREEN);
   tft.fillRect(180, 0, 60, 135, GREEN);
-
-  // fartsstriper 8D
-  //  tft.fillRect(118, 5, 4, 30, YELLOW);
-  //  tft.fillRect(118, 50, 4, 30, YELLOW);
-  //  tft.fillRect(118, 95, 4, 30, YELLOW);
 }
 
 void showGameStats() {
@@ -419,9 +422,46 @@ void updateGameStats() {
   showGameStats();
 }
 
-void beep() {
-  // insert tut-funksjon here
-  //  (takk mats)
+void splashScreen() {
+  tft.fillRect(0, 0, 240, 100, SKY_BLUE);
+  tft.fillRect(0, 100, 240, 35, GREEN);
+  tft.fillRect(0, 100, 240, 8, ASPHALT_GRAY);
+  carColor = lazerColorArray[random(6)];
+  sideCarAnimation();
+  delay(1000);
+}
+
+void sideCarAnimation() {
+  tft.setCursor(0, 30);
+  tft.setTextSize(2);
+  tft.print("awesome car game wow");
+  for (int i = -40; i < 240; i++) {
+    tft.fillRect(i, 86, 25, 6, PINK);
+    tft.fillRect(i, 92, 35, 10, PINK);
+    tft.fillRect(i + 18, 87, 7, 4, GRAY);
+    tft.fillRect(i + 33, 93, 2, 3, YELLOW);
+    tft.fillRect(i + 3, 100, 5, 5, BLACK);
+    tft.fillRect(i + 25, 100, 5, 5, BLACK);
+
+    tft.fillRect(i - 5, 102, 8, 3, ASPHALT_GRAY);
+    tft.fillRect(i + 8, 102, 17, 3, ASPHALT_GRAY);
+    tft.fillRect(i - 5, 100, 5, 2, ASPHALT_GRAY);
+    tft.fillRect(i - 5, 86, 5, 14, SKY_BLUE);
+    delay(10);
+  }
+}
+
+void drawHomeScreenCars() {
+  int sideCarX = 30;
+  for (int i = 0; i < 4; i++) {
+    tft.fillRect(sideCarX, 86, 25, 6, carColorArray[i]);
+    tft.fillRect(sideCarX, 92, 35, 10, carColorArray[i]);
+    tft.fillRect(sideCarX + 18, 87, 7, 4, GRAY);
+    tft.fillRect(sideCarX + 33, 93, 2, 3, YELLOW);
+    tft.fillRect(sideCarX + 3, 100, 5, 5, BLACK);
+    tft.fillRect(sideCarX + 25, 100, 5, 5, BLACK);
+    sideCarX = sideCarX + 50;
+  }
 }
 
 void drawPillars(int x, int y) {
@@ -440,14 +480,21 @@ void gameOver() {
   delay(1500);
   noTone(speakerPin);
   tft.setTextColor(WHITE);
-  tft.fillScreen(BLACK);
-  tft.setCursor(65, 53);
+  tft.fillRect(0, 0, 240, 100, SKY_BLUE);
+  tft.fillRect(0, 100, 240, 35, GREEN);
+  tft.fillRect(0, 100, 240, 8, ASPHALT_GRAY);
+  tft.fillRect(70, 86, 25, 6, carColor);
+  tft.fillRect(70, 92, 35, 10, carColor);
+  tft.fillRect(88, 87, 7, 4, GRAY);
+  tft.fillRect(103, 93, 2, 3, YELLOW);
+  tft.fillRect(73, 100, 5, 5, BLACK);
+  tft.fillRect(95, 100, 5, 5, BLACK);
+  tft.setCursor(45, 23);
   tft.println("GAME OVER");
-  tft.setCursor(65, 73);
+  tft.setCursor(45, 43);
   tft.print("Score: ");
   tft.print(score);
-
-  delay(2000);
+  delay(5000);
 
   obstacleY = -60;
   score = 0;
