@@ -27,6 +27,7 @@ const int speakerPin = 7;
 
 #define BLACK 0x0000
 #define BROWN 0x7A40
+#define BEIGE 0xC4CE
 #define GREEN 0x07E0
 #define GRAY 0x9492
 #define SKY_BLUE 0x971F
@@ -101,6 +102,8 @@ void setup() {
   tft.setRotation(1);
   splashScreen();
 
+  // Uncomment to reset high score:
+//   EEPROM.write(0, 0);
 }
 
 void loop() {
@@ -111,14 +114,12 @@ void loop() {
   delay(200);
   while (userInGame) {
     obstacleY = obstacleY + gameSpeed;
-    drawPillars(obstacleX, obstacleY);
+    drawLogs(obstacleX, obstacleY);
     buttonState3 = digitalRead(buttonPin3);
     buttonState2 = digitalRead(buttonPin2);
     buttonState4 = digitalRead(buttonPin4);
 
     sensorValueX = analogRead(analogInPinX);
-    //    sensorValueY = analogRead(analogInPinY);
-    // map it to the range of the analog out:
     outputValueX = map(sensorValueX, 0, 1023, 0, 255);
     if (obstacleY >= 150) {
       obstacleY = -30;
@@ -169,15 +170,11 @@ void showHomeScreen() {
   tft.fillCircle(40, 25, 10, GRAY);
   tft.fillCircle(60, 45, 10, GREEN);
   tft.fillCircle(40, 65, 10, GRAY);
-  drawHomeScreenCars();
 
+  drawHomeScreenCars();
   tft.setTextSize(2);
-  //  tft.fillCircle(90, 50, 8, GREEN);
-  //  tft.setCursor(105, 47);
-  //  tft.print("Start game");
-  //  tft.fillCircle(90, 70, 8, PINK);
-  tft.setTextSize(2);
-  tft.setCursor(10,115);
+
+  tft.setCursor(10, 115);
   tft.print("High score: ");
   tft.print(highScore);
   tft.setCursor(90, 43);
@@ -194,33 +191,21 @@ void startGame(int buttonPin) {
       buttonState = 0;
       lazerColor = lazerColorArray[random(6)];
       chooseCarColor();
-      //      showGameInstructions();
+      showGameInstructions();
       setGameBackground();
       drawCar(carX, carColor);
       showGameStats();
       tft.setTextColor(WHITE);
       delay(1000);
-      tft.setCursor(115, 50);
-      tone(speakerPin, NOTE_C4);
-      tft.print("3");
-      delay(800);
-      noTone(speakerPin);
-      delay(200);
-      tft.fillRect(110, 45, 20, 20, ASPHALT_GRAY);
-      tft.setCursor(115, 50);
-      tone(speakerPin, NOTE_C4);
-      tft.print("2");
-      delay(800);
-      noTone(speakerPin);
-      delay(200);
-      tft.fillRect(110, 45, 20, 20, ASPHALT_GRAY);
-      tft.setCursor(115, 50);
-      tone(speakerPin, NOTE_C4);
-      tft.print("1");
-      delay(800);
-      noTone(speakerPin);
-      delay(200);
-      tft.fillRect(110, 45, 20, 20, ASPHALT_GRAY);
+      for (int i = 3; i > 0; i--) {
+        tft.setCursor(115, 50);
+        tone(speakerPin, NOTE_C4);
+        tft.print(i);
+        delay(800);
+        noTone(speakerPin);
+        delay(200);
+        tft.fillRect(110, 45, 20, 20, ASPHALT_GRAY);
+      }
       tft.setCursor(85, 50);
       tone(speakerPin, NOTE_C5);
       tft.print("START!");
@@ -463,15 +448,12 @@ void drawHomeScreenCars() {
   }
 }
 
-void drawPillars(int x, int y) {
-  //  if (x >= 270) {
+void drawLogs(int x, int y) {
   tft.fillRect(x, y, 40, 15, BROWN);
-  //  tft.fillRect(x + 90, y, 40, 15, BROWN);
-  tft.fillRect(x, y - 15, 40, 15, ASPHALT_GRAY);
-  //  tft.fillRect(x + 90, y - 15, 40, 15, ASPHALT_GRAY);
-  if (x <= 60) {
+  tft.fillRect(x+2, y+2, 10, 10, BEIGE);
 
-  }
+  tft.fillRect(x+2, y, 10, 2, BROWN);
+  tft.fillRect(x, y - 15, 40, 15, ASPHALT_GRAY);
 }
 
 void gameOver() {
@@ -488,12 +470,12 @@ void gameOver() {
   tft.fillRect(103, 93, 2, 3, YELLOW);
   tft.fillRect(73, 100, 5, 5, BLACK);
   tft.fillRect(95, 100, 5, 5, BLACK);
-  tft.setCursor(45, 23);
+  tft.setCursor(20, 23);
   tft.println("GAME OVER");
-  tft.setCursor(45, 43);
-  if(score > highScore) {
+  tft.setCursor(20, 43);
+  if (score > highScore) {
     EEPROM.write(0, score);
-    tft.print("NEW HIGH SCORE: ");
+    tft.print("New high score: ");
   } else {
     tft.print("Score: ");
   }
