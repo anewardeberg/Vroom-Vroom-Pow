@@ -1,5 +1,5 @@
 // EKSAMENSDOKUMENT HELT PÅ EKTE
-//#include <EEPROM.h>
+#include <EEPROM.h>
 #include "pitches.h"
 
 // MISC. VARIABLES
@@ -100,16 +100,11 @@ void setup() {
   tft.fillScreen(BLACK);
   tft.setRotation(1);
   splashScreen();
-  //  tft.setTextSize(2);
-  //  tft.setCursor(8, 50);
-  //  tft.println("fakk alt corp. 2021");
-  //  //  delay(3000);
-  //  tft.fillScreen(BLACK);
-  //  highScore = EEPROM.read(0);
 
 }
 
 void loop() {
+  highScore = EEPROM.read(0);
   showHomeScreen();
   startGame(2);
 
@@ -181,6 +176,10 @@ void showHomeScreen() {
   //  tft.setCursor(105, 47);
   //  tft.print("Start game");
   //  tft.fillCircle(90, 70, 8, PINK);
+  tft.setTextSize(2);
+  tft.setCursor(10,115);
+  tft.print("High score: ");
+  tft.print(highScore);
   tft.setCursor(90, 43);
   tft.print("Start game");
 }
@@ -492,7 +491,12 @@ void gameOver() {
   tft.setCursor(45, 23);
   tft.println("GAME OVER");
   tft.setCursor(45, 43);
-  tft.print("Score: ");
+  if(score > highScore) {
+    EEPROM.write(0, score);
+    tft.print("NEW HIGH SCORE: ");
+  } else {
+    tft.print("Score: ");
+  }
   tft.print(score);
   delay(5000);
 
