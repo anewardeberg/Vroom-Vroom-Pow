@@ -1,8 +1,6 @@
-// EKSAMENSDOKUMENT HELT PÅ EKTE
 #include <EEPROM.h>
 #include "pitches.h"
 
-// MISC. VARIABLES
 bool userInGame = false;
 int obstacleX = 60;
 int obstacleY = -30;
@@ -16,13 +14,7 @@ int speedUpScore = 0;
 int highScore = 0;
 const int speakerPin = 7;
 
-
-//int deltatime SPØR MATS OM DETTE NÅR DEN TID KOMMER <3
-
-
-
-// TFT VARIABLES / SETUP
-#include <Adafruit_ST7789.h> // Hardware-specific library for ST7789
+#include <Adafruit_ST7789.h>
 #include <SPI.h>
 
 #define BLACK 0x0000
@@ -72,7 +64,6 @@ Adafruit_ST7789 tft = Adafruit_ST7789(TFT_CS, TFT_DC, TFT_RST);
 #define D6_pin 6
 #define D7_pin 7
 
-// BUTTONS VARIABLES
 const int buttonPin1 = 2;
 const int buttonPin2 = 3;
 const int buttonPin3 = 4;
@@ -83,15 +74,11 @@ int buttonState2 = 0;
 int buttonState3 = 0;
 int buttonState4 = 0;
 
-// JOYSTICK VARIABLES
 const int analogInPinX = A0;
 const int analogInPinY = A1;
-
-
 int sensorValueX = 0;
-//int sensorValueY = 0;
 int outputValueX = 0;
-//int outputValueY = 0;
+
 
 void setup() {
   Serial.begin(9600);
@@ -108,7 +95,7 @@ void setup() {
 
 void loop() {
   highScore = EEPROM.read(0);
-  showHomeScreen();
+  drawHomeScreen();
   startGame(2);
 
   delay(200);
@@ -161,7 +148,7 @@ void loop() {
   }
 }
 
-void showHomeScreen() {
+void drawHomeScreen() {
   tft.fillRect(0, 0, 240, 100, SKY_BLUE);
   tft.fillRect(0, 100, 240, 35, GREEN);
   tft.fillRect(0, 100, 240, 8, ASPHALT_GRAY);
@@ -191,7 +178,7 @@ void startGame(int buttonPin) {
       buttonState = 0;
       lazerColor = lazerColorArray[random(6)];
       selectCarColor();
-      showGameInstructions();
+      drawGameInstructions();
       setGameBackground();
       drawCar(carX, carColor);
       showGameStats();
@@ -207,7 +194,7 @@ void startGame(int buttonPin) {
         tft.fillRect(110, 45, 20, 20, ASPHALT_GRAY);
       }
       tft.setCursor(85, 50);
-      tone(speakerPin, NOTE_C5);
+      tone(speakerPin, NOTE_C6);
       tft.print("START!");
       delay(800);
       noTone(speakerPin);
@@ -227,14 +214,13 @@ void selectCarColor() {
   tft.fillScreen(BLACK);
   tft.setCursor(25, 40);
   tft.print("SELECT CAR COLOR");
+  
   while (!userHasChosenColor) {
     buttonState1 = digitalRead(buttonPin1);
     tft.fillRect(17, 80, 34, 34, carColorArray[0]);
     tft.fillRect(73, 80, 34, 34, carColorArray[1]);
     tft.fillRect(129, 80, 34, 34, carColorArray[2]);
     tft.fillRect(185, 80, 34, 34, carColorArray[3]);
-    //    Serial.println(outputValueX);
-    //
     sensorValueX = analogRead(analogInPinX);
     outputValueX = map(sensorValueX, 0, 1023, 0, 255);
     Serial.print(outputValueX);
@@ -292,11 +278,7 @@ void moveCarRight(int x) {
     x = carMaxX;
     carX = carMaxX;
   }
-  tft.fillRect(x, 95, 10, 15, carColor);
-  tft.fillRect(x + 1, 98, 8, 4, GRAY);
-  tft.fillRect(x + 1, 95, 2, 1, YELLOW);
-  tft.fillRect(x + 7, 95, 2, 1, YELLOW);
-
+  drawCar(carX, carColor);
   tft.fillRect(x - 1, 95, 1, 15, ASPHALT_GRAY);
 }
 
@@ -305,11 +287,7 @@ void moveCarLeft(int x) {
     x = carMinX;
     carX = carMinX;
   }
-  tft.fillRect(x, 95, 10, 15, carColor);
-  tft.fillRect(x + 1, 98, 8, 4, GRAY);
-  tft.fillRect(x + 1, 95, 2, 1, YELLOW);
-  tft.fillRect(x + 7, 95, 2, 1, YELLOW);
-
+  drawCar(carX, carColor);
   tft.fillRect(x + 11, 95, 1, 15, ASPHALT_GRAY);
 }
 
@@ -337,7 +315,6 @@ void activateLazer(int x) {
   }
   tft.fillRect(x + 1, 0, 3, 95, ASPHALT_GRAY);
   tft.fillRect(x + 7, 0, 3, 95, ASPHALT_GRAY);
-
   delay(500);
 
 }
@@ -371,7 +348,7 @@ void showGameStats() {
   tft.print(lazersAvailable);
 }
 
-void showGameInstructions() {
+void drawGameInstructions() {
   tft.fillRect(30, 15, 26, 7, GRAY);
   tft.fillRect(40, 22, 6, 12, ASPHALT_GRAY);
   tft.fillRect(24, 34, 38, 10, GRAY);
@@ -389,17 +366,10 @@ void showGameInstructions() {
   tft.setCursor(20, 85);
   tft.print("SHOOT LAZER");
 
-
   tft.setCursor(0, 125);
   tft.setTextColor(WHITE);
   tft.setTextSize(1);
-  for (int i = 6; i > 0; i--) {
-    tft.setCursor(0, 125);
-    tft.print(i);
-    delay(1000);
-    tft.fillRect(0, 120, 10, 15, BLACK);
-  }
-
+  countdown(6, 1, 120, 1, BLACK);
 }
 
 void updateGameStats() {
@@ -409,10 +379,8 @@ void updateGameStats() {
 }
 
 void splashScreen() {
-  tft.fillRect(0, 0, 240, 100, SKY_BLUE);
-  tft.fillRect(0, 100, 240, 35, GREEN);
-  tft.fillRect(0, 100, 240, 8, ASPHALT_GRAY);
-  tft.setCursor(30, 30);  
+  drawSecondBackground();
+  tft.setCursor(30, 30);
   tft.setTextSize(2);
   tft.print("VROOM VROOM POW");
   sideCarAnimation();
@@ -421,13 +389,7 @@ void splashScreen() {
 
 void sideCarAnimation() {
   for (int i = -40; i < 240; i++) {
-    tft.fillRect(i, 86, 25, 6, carColor);
-    tft.fillRect(i, 92, 35, 10, carColor);
-    tft.fillRect(i + 18, 87, 7, 4, GRAY);
-    tft.fillRect(i + 33, 93, 2, 3, YELLOW);
-    tft.fillRect(i + 3, 100, 5, 5, BLACK);
-    tft.fillRect(i + 25, 100, 5, 5, BLACK);
-
+    drawSideCar(carColor, i);
     tft.fillRect(i - 5, 102, 8, 3, ASPHALT_GRAY);
     tft.fillRect(i + 8, 102, 17, 3, ASPHALT_GRAY);
     tft.fillRect(i - 5, 100, 5, 2, ASPHALT_GRAY);
@@ -439,14 +401,18 @@ void sideCarAnimation() {
 void drawHomeScreenCars() {
   int sideCarX = 30;
   for (int i = 0; i < 4; i++) {
-    tft.fillRect(sideCarX, 86, 25, 6, carColorArray[i]);
-    tft.fillRect(sideCarX, 92, 35, 10, carColorArray[i]);
-    tft.fillRect(sideCarX + 18, 87, 7, 4, GRAY);
-    tft.fillRect(sideCarX + 33, 93, 2, 3, YELLOW);
-    tft.fillRect(sideCarX + 3, 100, 5, 5, BLACK);
-    tft.fillRect(sideCarX + 25, 100, 5, 5, BLACK);
+    drawSideCar(carColorArray[i], sideCarX);
     sideCarX = sideCarX + 50;
   }
+}
+
+void drawSideCar(uint16_t color, int x) {
+  tft.fillRect(x, 86, 25, 6, color);
+  tft.fillRect(x, 92, 35, 10, color);
+  tft.fillRect(x + 18, 87, 7, 4, GRAY);
+  tft.fillRect(x + 33, 93, 2, 3, YELLOW);
+  tft.fillRect(x + 3, 100, 5, 5, BLACK);
+  tft.fillRect(x + 25, 100, 5, 5, BLACK);
 }
 
 void drawLogs(int x, int y) {
@@ -462,15 +428,8 @@ void gameOver() {
   delay(1500);
   noTone(speakerPin);
   tft.setTextColor(WHITE);
-  tft.fillRect(0, 0, 240, 100, SKY_BLUE);
-  tft.fillRect(0, 100, 240, 35, GREEN);
-  tft.fillRect(0, 100, 240, 8, ASPHALT_GRAY);
-  tft.fillRect(70, 86, 25, 6, carColor);
-  tft.fillRect(70, 92, 35, 10, carColor);
-  tft.fillRect(88, 87, 7, 4, GRAY);
-  tft.fillRect(103, 93, 2, 3, YELLOW);
-  tft.fillRect(73, 100, 5, 5, BLACK);
-  tft.fillRect(95, 100, 5, 5, BLACK);
+  drawSecondBackground();
+  drawSideCar(carColor, 80);
   tft.setCursor(20, 23);
   tft.println("GAME OVER");
   tft.setCursor(20, 43);
@@ -481,7 +440,8 @@ void gameOver() {
     tft.print("Score: ");
   }
   tft.print(score);
-  delay(5000);
+  tft.setTextColor(BLACK);
+  countdown(8, 1, 120, 1, GREEN);
 
   obstacleY = -60;
   score = 0;
@@ -489,6 +449,22 @@ void gameOver() {
   userInGame = false;
   lazersAvailable = 5;
   tft.fillScreen(BLACK);
-  showHomeScreen();
+  drawHomeScreen();
   startGame(2);
+}
+
+void drawSecondBackground() {
+  tft.fillRect(0, 0, 240, 100, SKY_BLUE);
+  tft.fillRect(0, 100, 240, 35, GREEN);
+  tft.fillRect(0, 100, 240, 8, ASPHALT_GRAY);
+}
+
+void countdown(int count, int x, int y, int textSize, uint16_t color) {
+  for (int i = count; i > 0; i--) {
+    tft.setTextSize(textSize);
+    tft.setCursor(x, y);
+    tft.print(i);
+    delay(1000);
+    tft.fillRect(x, y, 10 * x, 15 * y, color);
+  }
 }
