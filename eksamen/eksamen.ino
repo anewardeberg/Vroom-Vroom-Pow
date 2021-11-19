@@ -208,15 +208,19 @@ void startGame(int buttonPin) {
 }
 
 void selectCarColor() {
-  buttonState1 = 0;
+  buttonState4 = 0;
   bool userHasChosenColor = false;
   int i = 0;
   tft.fillScreen(BLACK);
-  tft.setCursor(25, 40);
-  tft.print("SELECT CAR COLOR");
-  
+  tft.fillCircle(22, 43, 8, GRAY);
+  tft.fillCircle(40, 25, 8, PURPLE);
+  tft.fillCircle(58, 43, 8, GRAY);
+  tft.fillCircle(40, 61, 8, GRAY);
+  tft.setCursor(75, 37);
+  tft.print("CONFIRM COLOR");
+
   while (!userHasChosenColor) {
-    buttonState1 = digitalRead(buttonPin1);
+    buttonState4 = digitalRead(buttonPin4);
     tft.fillRect(17, 80, 34, 34, carColorArray[0]);
     tft.fillRect(73, 80, 34, 34, carColorArray[1]);
     tft.fillRect(129, 80, 34, 34, carColorArray[2]);
@@ -264,8 +268,7 @@ void selectCarColor() {
     carColor = carColorArray[i];
     delay(200);
 
-    if (buttonState1 == HIGH) {
-      buttonState1 = 0;
+    if (buttonState4 == HIGH) {
       userHasChosenColor = true;
     }
 
