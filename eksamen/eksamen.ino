@@ -10,7 +10,6 @@ int carMinX = 61;
 int gameSpeed = 1;
 int score = 0;
 int lazersAvailable = 5;
-int speedUpScore = 0;
 int highScore = 0;
 const int speakerPin = 7;
 
@@ -108,6 +107,7 @@ void loop() {
 
     sensorValueX = analogRead(analogInPinX);
     outputValueX = map(sensorValueX, 0, 1023, 0, 255);
+    
     if (obstacleY >= 150) {
       obstacleY = -30;
       obstacleX = rand() % 80 + 60;
@@ -148,24 +148,27 @@ void loop() {
   }
 }
 
-void drawHomeScreen() {
-  tft.fillRect(0, 0, 240, 100, SKY_BLUE);
-  tft.fillRect(0, 100, 240, 35, GREEN);
-  tft.fillRect(0, 100, 240, 8, ASPHALT_GRAY);
-
-  tft.fillCircle(20, 46, 10, GRAY);
-  tft.fillCircle(40, 25, 10, GRAY);
-  tft.fillCircle(60, 45, 10, GREEN);
-  tft.fillCircle(40, 65, 10, GRAY);
-
-  drawHomeScreenCars();
+void drawGameInstructions() {
+  tft.fillRect(30, 15, 26, 7, GRAY);
+  tft.fillRect(40, 22, 6, 12, ASPHALT_GRAY);
+  tft.fillRect(24, 34, 38, 10, GRAY);
   tft.setTextSize(2);
+  tft.setTextColor(WHITE);
+  tft.setCursor(80, 25);
+  tft.print("MOVE CAR");
+  tft.fillCircle(175, 90, 10, PINK);
+  tft.fillCircle(195, 70, 10, GRAY);
+  tft.fillCircle(215, 90, 10, GRAY);
+  tft.fillCircle(195, 110, 10, GRAY);
+  tft.drawLine(160, 110, 175, 90, PINK);
+  tft.drawFastHLine(20, 110, 140, PINK);
+  tft.setCursor(20, 85);
+  tft.print("SHOOT LAZER");
 
-  tft.setCursor(10, 115);
-  tft.print("High score: ");
-  tft.print(highScore);
-  tft.setCursor(90, 43);
-  tft.print("Start game");
+  tft.setCursor(0, 125);
+  tft.setTextColor(WHITE);
+  tft.setTextSize(1);
+  countdown(6, 1, 120, 1, BLACK);
 }
 
 void startGame(int buttonPin) {
@@ -174,16 +177,18 @@ void startGame(int buttonPin) {
 
   while (1) {
     buttonState = digitalRead(buttonPin);
+    
     if (buttonState == HIGH) {
       buttonState = 0;
       lazerColor = lazerColorArray[random(6)];
       selectCarColor();
       drawGameInstructions();
-      setGameBackground();
+      drawGameBackground();
       drawCar(carX, carColor);
       showGameStats();
       tft.setTextColor(WHITE);
       delay(1000);
+      
       for (int i = 3; i > 0; i--) {
         tft.setCursor(115, 50);
         tone(speakerPin, NOTE_C4);
@@ -193,6 +198,7 @@ void startGame(int buttonPin) {
         delay(200);
         tft.fillRect(110, 45, 20, 20, ASPHALT_GRAY);
       }
+      
       tft.setCursor(85, 50);
       tone(speakerPin, NOTE_C6);
       tft.print("START!");
@@ -204,6 +210,16 @@ void startGame(int buttonPin) {
       userInGame = true;
       return;
     }
+  }
+}
+
+void countdown(int count, int x, int y, int textSize, uint16_t color) {
+  for (int i = count; i > 0; i--) {
+    tft.setTextSize(textSize);
+    tft.setCursor(x, y);
+    tft.print(i);
+    delay(1000);
+    tft.fillRect(x, y, 10 * x, 15 * y, color);
   }
 }
 
@@ -228,6 +244,7 @@ void selectCarColor() {
     sensorValueX = analogRead(analogInPinX);
     outputValueX = map(sensorValueX, 0, 1023, 0, 255);
     Serial.print(outputValueX);
+    
     if (outputValueX >= 180) {
       i++;
       if (i > 3) {
@@ -242,7 +259,6 @@ void selectCarColor() {
 
     Serial.print("i: ");
     Serial.println(i);
-
 
     if (i == 0) {
       tft.drawRect(14, 77, 40, 40, GREEN);
@@ -265,6 +281,7 @@ void selectCarColor() {
       tft.drawRect(126, 77, 40, 40, BLACK);
       tft.drawRect(182, 77, 40, 40, GREEN);
     }
+    
     carColor = carColorArray[i];
     delay(200);
 
@@ -281,6 +298,7 @@ void moveCarRight(int x) {
     x = carMaxX;
     carX = carMaxX;
   }
+  
   drawCar(carX, carColor);
   tft.fillRect(x - 1, 95, 1, 15, ASPHALT_GRAY);
 }
@@ -290,10 +308,16 @@ void moveCarLeft(int x) {
     x = carMinX;
     carX = carMinX;
   }
+  
   drawCar(carX, carColor);
   tft.fillRect(x + 11, 95, 1, 15, ASPHALT_GRAY);
 }
 
+void updateGameStats() {
+  tft.fillRect(0, 0, 60, 70, GREEN);
+  tft.fillRect(180, 0, 60, 70, GREEN);
+  showGameStats();
+}
 
 void activateLazer(int x) {
   lazersAvailable--;
@@ -301,12 +325,15 @@ void activateLazer(int x) {
   tft.fillRect(x + 7, 0, 3, 95, lazerColor);
   tft.fillRect(x + 2, 0, 1, 95, WHITE);
   tft.fillRect(x + 8, 0, 1, 95, WHITE);
+  
   for (int i = 1000; i > 700; i--) {
     tone(speakerPin, i);
     delay(1);
   }
+  
   noTone(speakerPin);
   delay(800);
+  
   if ((x >= obstacleX) && (x <= obstacleX + 40)) {
     obstacleY = -100;
     obstacleX = rand() % 80 + 60;
@@ -316,69 +343,43 @@ void activateLazer(int x) {
     obstacleX = rand() % 80 + 60;
     tft.fillRect(60, 0, 120, 95, ASPHALT_GRAY);
   }
+  
   tft.fillRect(x + 1, 0, 3, 95, ASPHALT_GRAY);
   tft.fillRect(x + 7, 0, 3, 95, ASPHALT_GRAY);
   delay(500);
-
 }
 
-void drawCar(int x, uint16_t carColor) {
-  tft.fillRect(x, 95, 10, 15, carColor);
-  tft.fillRect(x + 1, 98, 8, 4, GRAY);
-  tft.fillRect(x + 1, 95, 2, 1, YELLOW);
-  tft.fillRect(x + 7, 95, 2, 1, YELLOW);
-}
-
-void setGameBackground() {
-  tft.fillScreen(ASPHALT_GRAY);
-  tft.fillRect(0, 0, 60, 135, GREEN);
-  tft.fillRect(180, 0, 60, 135, GREEN);
-}
-
-void showGameStats() {
-  tft.setCursor(3, 1);
+void gameOver() {
+  tone(speakerPin, NOTE_C2);
+  delay(1500);
+  noTone(speakerPin);
+  tft.setTextColor(WHITE);
+  drawSecondBackground();
+  drawSideCar(carColor, 80);
+  tft.setCursor(20, 23);
+  tft.println("GAME OVER");
+  tft.setCursor(20, 43);
+  
+  if (score > highScore) {
+    EEPROM.write(0, score);
+    tft.print("New high score: ");
+  } else {
+    tft.print("Score: ");
+  }
+  
+  tft.print(score);
   tft.setTextColor(BLACK);
-  tft.setTextSize(1.5);
-  tft.println("score:");
-  tft.setCursor(3, 10);
-  tft.setTextSize(2.5);
-  tft.println(score);
-  tft.setCursor(3, 30);
-  tft.setTextSize(1.5);
-  tft.println("lazers:");
-  tft.setCursor(3, 40);
-  tft.setTextSize(2.5);
-  tft.print(lazersAvailable);
-}
+  countdown(5, 1, 120, 1, GREEN);
 
-void drawGameInstructions() {
-  tft.fillRect(30, 15, 26, 7, GRAY);
-  tft.fillRect(40, 22, 6, 12, ASPHALT_GRAY);
-  tft.fillRect(24, 34, 38, 10, GRAY);
-  tft.setTextSize(2);
+  obstacleY = -60;
+  score = 0;
+  carX = 115;
+  userInGame = false;
+  lazersAvailable = 5;
+  tft.fillScreen(BLACK);
   tft.setTextColor(WHITE);
-  tft.setCursor(80, 25);
-  tft.print("MOVE CAR");
-
-  tft.fillCircle(175, 90, 10, PINK);
-  tft.fillCircle(195, 70, 10, GRAY);
-  tft.fillCircle(215, 90, 10, GRAY);
-  tft.fillCircle(195, 110, 10, GRAY);
-  tft.drawLine(160, 110, 175, 90, PINK);
-  tft.drawFastHLine(20, 110, 140, PINK);
-  tft.setCursor(20, 85);
-  tft.print("SHOOT LAZER");
-
-  tft.setCursor(0, 125);
-  tft.setTextColor(WHITE);
-  tft.setTextSize(1);
-  countdown(6, 1, 120, 1, BLACK);
-}
-
-void updateGameStats() {
-  tft.fillRect(0, 0, 60, 70, GREEN);
-  tft.fillRect(180, 0, 60, 70, GREEN);
-  showGameStats();
+  drawHomeScreen();
+  startGame(2);
 }
 
 void splashScreen() {
@@ -401,14 +402,6 @@ void sideCarAnimation() {
   }
 }
 
-void drawHomeScreenCars() {
-  int sideCarX = 30;
-  for (int i = 0; i < 4; i++) {
-    drawSideCar(carColorArray[i], sideCarX);
-    sideCarX = sideCarX + 50;
-  }
-}
-
 void drawSideCar(uint16_t color, int x) {
   tft.fillRect(x, 86, 25, 6, color);
   tft.fillRect(x, 92, 35, 10, color);
@@ -418,42 +411,39 @@ void drawSideCar(uint16_t color, int x) {
   tft.fillRect(x + 25, 100, 5, 5, BLACK);
 }
 
-void drawLogs(int x, int y) {
-  tft.fillRect(x, y, 40, 15, BROWN);
-  tft.fillRect(x + 2, y + 2, 10, 10, BEIGE);
+void drawHomeScreen() {
+  tft.fillRect(0, 0, 240, 100, SKY_BLUE);
+  tft.fillRect(0, 100, 240, 35, GREEN);
+  tft.fillRect(0, 100, 240, 8, ASPHALT_GRAY);
 
-  tft.fillRect(x + 2, y, 10, 2, BROWN);
-  tft.fillRect(x, y - 15, 40, 15, ASPHALT_GRAY);
+  tft.fillCircle(20, 46, 10, GRAY);
+  tft.fillCircle(40, 25, 10, GRAY);
+  tft.fillCircle(60, 45, 10, GREEN);
+  tft.fillCircle(40, 65, 10, GRAY);
+
+  drawHomeScreenCars();
+  tft.setTextSize(2);
+
+  tft.setCursor(10, 115);
+  tft.print("High score: ");
+  tft.print(highScore);
+  tft.setCursor(90, 43);
+  tft.print("Start game");
 }
 
-void gameOver() {
-  tone(speakerPin, NOTE_C2);
-  delay(1500);
-  noTone(speakerPin);
-  tft.setTextColor(WHITE);
-  drawSecondBackground();
-  drawSideCar(carColor, 80);
-  tft.setCursor(20, 23);
-  tft.println("GAME OVER");
-  tft.setCursor(20, 43);
-  if (score > highScore) {
-    EEPROM.write(0, score);
-    tft.print("New high score: ");
-  } else {
-    tft.print("Score: ");
+void drawHomeScreenCars() {
+  int sideCarX = 30;
+  
+  for (int i = 0; i < 4; i++) {
+    drawSideCar(carColorArray[i], sideCarX);
+    sideCarX = sideCarX + 50;
   }
-  tft.print(score);
-  tft.setTextColor(BLACK);
-  countdown(8, 1, 120, 1, GREEN);
+}
 
-  obstacleY = -60;
-  score = 0;
-  carX = 115;
-  userInGame = false;
-  lazersAvailable = 5;
-  tft.fillScreen(BLACK);
-  drawHomeScreen();
-  startGame(2);
+void drawGameBackground() {
+  tft.fillScreen(ASPHALT_GRAY);
+  tft.fillRect(0, 0, 60, 135, GREEN);
+  tft.fillRect(180, 0, 60, 135, GREEN);
 }
 
 void drawSecondBackground() {
@@ -462,12 +452,33 @@ void drawSecondBackground() {
   tft.fillRect(0, 100, 240, 8, ASPHALT_GRAY);
 }
 
-void countdown(int count, int x, int y, int textSize, uint16_t color) {
-  for (int i = count; i > 0; i--) {
-    tft.setTextSize(textSize);
-    tft.setCursor(x, y);
-    tft.print(i);
-    delay(1000);
-    tft.fillRect(x, y, 10 * x, 15 * y, color);
-  }
+void showGameStats() {
+  tft.setCursor(3, 1);
+  tft.setTextColor(BLACK);
+  tft.setTextSize(1.5);
+  tft.println("score:");
+  tft.setCursor(3, 10);
+  tft.setTextSize(2.5);
+  tft.println(score);
+  tft.setCursor(3, 30);
+  tft.setTextSize(1.5);
+  tft.println("lazers:");
+  tft.setCursor(3, 40);
+  tft.setTextSize(2.5);
+  tft.print(lazersAvailable);
+}
+
+void drawCar(int x, uint16_t carColor) {
+  tft.fillRect(x, 95, 10, 15, carColor);
+  tft.fillRect(x + 1, 98, 8, 4, GRAY);
+  tft.fillRect(x + 1, 95, 2, 1, YELLOW);
+  tft.fillRect(x + 7, 95, 2, 1, YELLOW);
+}
+
+void drawLogs(int x, int y) {
+  tft.fillRect(x, y, 40, 15, BROWN);
+  tft.fillRect(x + 2, y + 2, 10, 10, BEIGE);
+
+  tft.fillRect(x + 2, y, 10, 2, BROWN);
+  tft.fillRect(x, y - 15, 40, 15, ASPHALT_GRAY);
 }
