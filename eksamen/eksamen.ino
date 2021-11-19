@@ -103,7 +103,7 @@ void setup() {
   splashScreen();
 
   // Uncomment to reset high score:
-//   EEPROM.write(0, 0);
+  //   EEPROM.write(0, 0);
 }
 
 void loop() {
@@ -190,7 +190,7 @@ void startGame(int buttonPin) {
     if (buttonState == HIGH) {
       buttonState = 0;
       lazerColor = lazerColorArray[random(6)];
-      chooseCarColor();
+      selectCarColor();
       showGameInstructions();
       setGameBackground();
       drawCar(carX, carColor);
@@ -220,12 +220,13 @@ void startGame(int buttonPin) {
   }
 }
 
-void chooseCarColor() {
+void selectCarColor() {
+  buttonState1 = 0;
   bool userHasChosenColor = false;
   int i = 0;
   tft.fillScreen(BLACK);
   tft.setCursor(25, 40);
-  tft.print("CHOOSE CAR COLOR");
+  tft.print("SELECT CAR COLOR");
   while (!userHasChosenColor) {
     buttonState1 = digitalRead(buttonPin1);
     tft.fillRect(17, 80, 34, 34, carColorArray[0]);
@@ -278,6 +279,7 @@ void chooseCarColor() {
     delay(200);
 
     if (buttonState1 == HIGH) {
+      buttonState1 = 0;
       userHasChosenColor = true;
     }
 
@@ -410,18 +412,17 @@ void splashScreen() {
   tft.fillRect(0, 0, 240, 100, SKY_BLUE);
   tft.fillRect(0, 100, 240, 35, GREEN);
   tft.fillRect(0, 100, 240, 8, ASPHALT_GRAY);
-  carColor = lazerColorArray[random(6)];
+  tft.setCursor(30, 30);  
+  tft.setTextSize(2);
+  tft.print("VROOM VROOM POW");
   sideCarAnimation();
   delay(1000);
 }
 
 void sideCarAnimation() {
-  tft.setCursor(0, 30);
-  tft.setTextSize(2);
-  tft.print("awesome car game wow");
   for (int i = -40; i < 240; i++) {
-    tft.fillRect(i, 86, 25, 6, PINK);
-    tft.fillRect(i, 92, 35, 10, PINK);
+    tft.fillRect(i, 86, 25, 6, carColor);
+    tft.fillRect(i, 92, 35, 10, carColor);
     tft.fillRect(i + 18, 87, 7, 4, GRAY);
     tft.fillRect(i + 33, 93, 2, 3, YELLOW);
     tft.fillRect(i + 3, 100, 5, 5, BLACK);
@@ -450,9 +451,9 @@ void drawHomeScreenCars() {
 
 void drawLogs(int x, int y) {
   tft.fillRect(x, y, 40, 15, BROWN);
-  tft.fillRect(x+2, y+2, 10, 10, BEIGE);
+  tft.fillRect(x + 2, y + 2, 10, 10, BEIGE);
 
-  tft.fillRect(x+2, y, 10, 2, BROWN);
+  tft.fillRect(x + 2, y, 10, 2, BROWN);
   tft.fillRect(x, y - 15, 40, 15, ASPHALT_GRAY);
 }
 
