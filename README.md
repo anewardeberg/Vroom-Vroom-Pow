@@ -1,5 +1,8 @@
 # OPPGAVE 1, SPILLKONSOLL (Eksamen - PG5501)
 
+> Prosjektmappe ligger vedlagt
+
+
 ## Komponenter
 | Komponent | Antall |
 | ----------- | ----------- |
@@ -49,5 +52,6 @@ Detalj: Bilen som vises på sluttskjermen er i samme farge som spilleren valgte 
 
 ## Koblingsskjema
 <img width="468" alt="image" src="https://user-images.githubusercontent.com/56083423/142681695-bf595826-e11e-42be-a03e-ffe65253cecb.png">
+
 
 
